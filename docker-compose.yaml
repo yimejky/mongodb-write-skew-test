@@ -1,0 +1,50 @@
+version: "3.9"
+services:
+  testing-mongo0:
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - testing-mongo-volume0:/data/db
+    networks:
+      - testing-monog-network
+    command:
+      - sh
+      - "-c"
+      - |
+        mongod --bind_ip_all --replSet rs0 --port 27017
+  testing-mongo1:
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27018:27018"
+    volumes:
+      - testing-mongo-volume1:/data/db
+    networks:
+      - testing-monog-network
+    command:
+      - sh
+      - "-c"
+      - |
+        mongod --bind_ip_all --replSet rs0 --port 27018
+  testing-mongo2:
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27019:27019"
+    volumes:
+      - testing-mongo-volume2:/data/db
+    networks:
+      - testing-monog-network
+    command:
+      - sh
+      - "-c"
+      - |
+        mongod --bind_ip_all --replSet rs0 --port 27019
+volumes:
+  testing-mongo-volume0: {}
+  testing-mongo-volume1: {}
+  testing-mongo-volume2: {}
+networks:
+  testing-monog-network:
