@@ -1,41 +1,6 @@
 const { MongoClient, ObjectId } = require('mongodb');
-
-async function initMongo() {
-    const url = 'mongodb://localhost:27018';
-    const dbName = 'testingProject';
-
-    const client = new MongoClient(url, {
-        writeConcern: 'majority'
-    });
-
-    await client.connect();
-    console.log('Connected successfully to server');
-
-    const db = client.db(dbName);
-    const collection = db.collection('documents');
-
-    return { client, db, collection };
-}
-
-async function runTransaction(client, fn) {
-    const transactionOptions = {
-        "readConcern": { "level": "majority" },
-        "writeConcern": { "w": "majority" }
-    };
-
-    const session = client.startSession();
-    try {
-        session.startTransaction(transactionOptions);
-        console.log('Transaction started.');
-
-        await fn(session);
-
-        await session.commitTransaction();
-        console.log('Transaction successfully committed.');
-    } catch (error) {
-        console.log(`Transaction interupted: ${error.name}`);
-    }
-}
+const { runTransaction } = require('./src/runTransaction.js');
+const { initMongo } = require('./src/initMongo.js');
 
 const updateDoc = async (session, collection, name) => {
     const documents = await collection.find({ randomBool: true }, { session }).toArray();
@@ -103,7 +68,7 @@ const updateDoc2 = async (session, collection, name) => {
     await collection.insertOne({ _id: 1, name: 'bob', randomBool: true });
     await collection.insertOne({ _id: 2, name: 'alice', randomBool: true });
     await collection.insertOne({ _id: 3, name: 'testing', randomBool: false });
-    console.log('inserted');
+    console.log('Data inserted');
 
     let documents = [];
     documents = await collection.find({}).toArray();
@@ -120,4 +85,6 @@ const updateDoc2 = async (session, collection, name) => {
 
     documents = await collection.find({}).toArray();
     console.log(JSON.stringify(documents, null, 2));
+
+    process.exit(0);
 })();
